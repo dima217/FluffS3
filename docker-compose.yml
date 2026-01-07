@@ -1,4 +1,32 @@
 services:
+  mongodb:
+    image: mongo:7
+    container_name: app_auth_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: app_mini
+    command: mongod --quiet
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "1"
+        tag: "mongodb"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - auth-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "--quiet"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   minio:
     image: minio/minio:latest
     container_name: app_mini_minio
@@ -31,7 +59,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3001
-      MONGODB_URI: mongodb://app_auth_mongodb:27017/app_mini
+      MONGODB_URI: ${MONGODB_URI:-mongodb://admin:admin123@app_auth_mongodb:27017/app_mini?authSource=admin}
       S3_ENDPOINT: app_mini_minio
       S3_PORT: 9000
       S3_USE_SSL: "false"
@@ -45,6 +73,8 @@ services:
       REDIS_HOST: host.docker.internal
       REDIS_PORT: ${REDIS_PORT:-6379}
     depends_on:
+      mongodb:
+        condition: service_healthy
       minio:
         condition: service_healthy
     networks:
@@ -64,6 +94,7 @@ services:
 
 volumes:
   minio_data:
+  mongodb_data:
 
 networks:
   auth-network:
