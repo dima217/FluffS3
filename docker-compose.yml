@@ -15,7 +15,7 @@ services:
     networks:
       - auth-network
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3
@@ -42,7 +42,7 @@ services:
       S3_INTERNAL_HOSTNAME: ${S3_INTERNAL_HOSTNAME:-app_mini_minio:9000}
       S3_EXTERNAL_HOSTNAME: ${S3_EXTERNAL_HOSTNAME:-localhost:9000}
       JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-min-10-chars}
-      REDIS_HOST: ${REDIS_HOST:-app_auth_redis}
+      REDIS_HOST: host.docker.internal
       REDIS_PORT: ${REDIS_PORT:-6379}
     depends_on:
       minio:
@@ -50,7 +50,13 @@ services:
     networks:
       - auth-network
     healthcheck:
-      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3001/api', (r) => {process.exit(r.statusCode === 200 || r.statusCode === 301 ? 0 : 1)})" ]
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:3001/api', (r) => {process.exit(r.statusCode === 200 || r.statusCode === 301 ? 0 : 1)})",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -59,8 +65,7 @@ services:
 volumes:
   minio_data:
 
-
 networks:
   auth-network:
     name: auth-network
-    driver: bridge
+    external: true
