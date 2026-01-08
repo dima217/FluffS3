@@ -25,7 +25,7 @@ export class MediaService {
     filename: string,
     size: number,
     metadata?: Record<string, any>
-  ): Promise<{ mediaId: string; url: string }> {
+  ): Promise<{ mediaId: string; url: string; uploadUrl: string }> {
     const fileExtension = filename.split(".").pop() || "";
     const generatedFilename = `${uuidv4()}.${fileExtension}`;
     const url = `/${userId}/${generatedFilename}`;
@@ -45,9 +45,16 @@ export class MediaService {
     const cacheKey = `media:url:${url}`;
     await this.cacheManager.set(cacheKey, saved, 900);
 
+    // Generate presigned URL for direct upload to S3
+    const uploadUrl = await this.getUploadRedirectUrl(
+      saved._id.toString(),
+      false
+    );
+
     return {
       mediaId: saved._id.toString(),
       url,
+      uploadUrl,
     };
   }
 
