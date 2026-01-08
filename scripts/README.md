@@ -40,6 +40,38 @@ Checks if all required services (MongoDB, MinIO, Application) are running.
 - MinIO Console on port 9001
 - Application on http://localhost:3002
 
+### 3. `get-swagger-json.js` / `get-swagger-json.sh`
+Fetches Swagger JSON schema from the API for use with AI/LLM tools or documentation.
+
+**Node.js version (cross-platform):**
+```bash
+node scripts/get-swagger-json.js [output-file]
+```
+
+**Bash version:**
+```bash
+./scripts/get-swagger-json.sh [output-file]
+```
+
+**Environment variables:**
+- `API_URL` (optional): Base URL of the API (default: http://localhost:3002)
+
+**Examples:**
+```bash
+# Save to default file (swagger.json)
+node scripts/get-swagger-json.js
+
+# Save to custom file
+node scripts/get-swagger-json.js api-schema.json
+
+# Use custom API URL
+API_URL=http://localhost:3002 node scripts/get-swagger-json.js
+```
+
+**Output:**
+- Saves Swagger JSON schema to specified file (default: `swagger.json`)
+- Displays file path, size, number of endpoints and schemas
+
 ## Getting a JWT Token
 
 To get a JWT token for testing, you need to authenticate through the Constructor_Auth service first.
