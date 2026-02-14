@@ -23,7 +23,12 @@ import {
 } from "@nestjs/swagger";
 import type { Response, Request } from "express";
 import { MediaService } from "../services/media.service";
-import { CreateMediaDto, CreateMediaResponseDto } from "../dto/media.dto";
+import {
+  CreateMediaDto,
+  CreateMediaResponseDto,
+  GetMediaUrlsDto,
+  MediaUrlItemDto,
+} from "../dto/media.dto";
 import { JwtAuthGuard } from "../guards/jwt-auth.guard";
 import { CurrentUser } from "../decorators/user.decorator";
 import { Public } from "../decorators/public.decorator";
@@ -64,6 +69,19 @@ export class MediaController {
       createMediaDto.size,
       createMediaDto.metadata
     );
+  }
+
+  @Post("get-urls")
+  @ApiOperation({ summary: "Get URLs and loading status for multiple media" })
+  @ApiResponse({
+    status: 200,
+    description: "List of media with url and isLoaded",
+    type: [MediaUrlItemDto],
+  })
+  async getMediaUrls(
+    @Body() dto: GetMediaUrlsDto
+  ): Promise<MediaUrlItemDto[]> {
+    return this.mediaService.getMediaUrls(dto.mediaIds);
   }
 
   @Post(":mediaId/loading-end")

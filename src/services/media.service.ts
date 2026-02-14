@@ -129,6 +129,27 @@ export class MediaService {
     };
   }
 
+  async getMediaUrls(mediaIds: string[]): Promise<{ mediaId: string; url: string; isLoaded: boolean }[]> {
+    if (!mediaIds?.length) {
+      return [];
+    }
+    const mediaList = await this.mediaModel
+      .find({ _id: { $in: mediaIds } })
+      .exec();
+    return mediaIds.map((id) => {
+      const media = mediaList.find((m) => m._id.toString() === id);
+      if (!media) {
+        this.logger.warn(`Media not found: ${id}`);
+        return { mediaId: id, url: "", isLoaded: false };
+      }
+      return {
+        mediaId: media._id.toString(),
+        url: media.url,
+        isLoaded: !!media.loading,
+      };
+    });
+  }
+
   async getUploadRedirectUrl(
     mediaId: string,
     useInternalHostname = false
@@ -142,7 +163,7 @@ export class MediaService {
     const presignedUrl = await this.s3Service.getPresignedUrl(
       media.url,
       3600,
-      useInternalHostname
+      false
     );
 
     // Fix double slashes in URL path if any

@@ -67,8 +67,8 @@ services:
       S3_SECRET_KEY: minioadmin123
       S3_BUCKET_NAME: media
       S3_REGION: us-east-1
-      S3_INTERNAL_HOSTNAME: ${S3_INTERNAL_HOSTNAME:-app_mini_minio:9000}
-      S3_EXTERNAL_HOSTNAME: ${S3_EXTERNAL_HOSTNAME:-localhost:9000}
+      S3_INTERNAL_HOSTNAME: app_mini_minio:9000
+      S3_EXTERNAL_HOSTNAME: 10.78.194.195:9000
       JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-min-10-chars}
       REDIS_HOST: host.docker.internal
       REDIS_PORT: ${REDIS_PORT:-6379}
