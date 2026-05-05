@@ -129,7 +129,24 @@ export class MediaService {
     };
   }
 
-  async getMediaUrls(mediaIds: string[]): Promise<{ mediaId: string; url: string; isLoaded: boolean }[]> {
+  async getDownloadRedirectUrl(mediaId: string): Promise<string> {
+    const media = await this.mediaModel.findById(mediaId).exec();
+
+    if (!media) {
+      throw new NotFoundException(`Media with ID ${mediaId} not found`);
+    }
+
+    const presignedUrl = await this.s3Service.getPresignedDownloadUrl(
+      media.url,
+      3600
+    );
+
+    return presignedUrl.replace(/([^:]\/)\/+/g, "$1");
+  }
+
+  async getMediaUrls(
+    mediaIds: string[]
+  ): Promise<{ mediaId: string; url: string; isLoaded: boolean }[]> {
     if (!mediaIds?.length) {
       return [];
     }

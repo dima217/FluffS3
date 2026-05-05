@@ -58,8 +58,8 @@ export class MiniIOS3Service extends AbstractS3Service implements OnModuleInit {
       });
 
       // MinIO client for presigned URLs (uses external hostname for client access)
-      const externalHostname =
-        this.minioConfig?.externalHostname || "10.78.194.195:9000";
+      const externalHostname = this.minioConfig?.externalHostname || ":9000";
+      this.minioConfig?.externalHostname || "10.188.8.195:9000";
       const [host, portStr] = externalHostname.split(":");
       const port = parseInt(portStr || "9000", 10);
       this.minioClientForPresigned = new Minio.Client({
@@ -111,13 +111,14 @@ export class MiniIOS3Service extends AbstractS3Service implements OnModuleInit {
 
   async getPresignedDownloadUrl(
     key: string,
-    expiresIn: number = 3600
+    expiresIn: number = 3600,
+    useInternalHostname = false
   ): Promise<string> {
-    return await this.minioClient.presignedGetObject(
-      this.bucketName,
-      key,
-      expiresIn
-    );
+    const client = useInternalHostname
+      ? this.minioClient
+      : this.minioClientForPresigned;
+
+    return await client.presignedGetObject(this.bucketName, key, expiresIn);
   }
 
   async getObject(key: string): Promise<{

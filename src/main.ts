@@ -19,17 +19,6 @@ async function bootstrap() {
 		.setTitle('Constructor Mini API')
 		.setDescription('Media storage service with MiniIO S3')
 		.setVersion('1.0')
-		.addBearerAuth(
-			{
-				type: 'http',
-				scheme: 'bearer',
-				bearerFormat: 'JWT',
-				name: 'JWT',
-				description: 'Enter JWT token',
-				in: 'header',
-			},
-			'JWT-auth',
-		)
 		.build();
 
 	const document = SwaggerModule.createDocument(app, config);

@@ -78,9 +78,7 @@ export class MediaController {
     description: "List of media with url and isLoaded",
     type: [MediaUrlItemDto],
   })
-  async getMediaUrls(
-    @Body() dto: GetMediaUrlsDto
-  ): Promise<MediaUrlItemDto[]> {
+  async getMediaUrls(@Body() dto: GetMediaUrlsDto): Promise<MediaUrlItemDto[]> {
     return this.mediaService.getMediaUrls(dto.mediaIds);
   }
 
@@ -182,5 +180,29 @@ export class MediaController {
         error: error.message,
       });
     }
+  }
+
+  @Get("download-url")
+  @Public()
+  @ApiOperation({
+    summary: "Get presigned download URL",
+    description:
+      "Returns a presigned URL for direct file download from S3/MinIO without proxying through backend",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Presigned download URL generated successfully",
+    schema: {
+      example: {
+        url: "https://minio.example.com/bucket/user123/file.jpg?X-Amz-Algorithm=...",
+      },
+    },
+  })
+  async getDownloadUrl(@Query("url") url: string): Promise<{ url: string }> {
+    const presignedUrl = await this.mediaService.getDownloadRedirectUrl(url);
+
+    return {
+      url: presignedUrl,
+    };
   }
 }
